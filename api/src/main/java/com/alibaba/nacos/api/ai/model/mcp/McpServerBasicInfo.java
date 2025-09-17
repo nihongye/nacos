@@ -17,6 +17,7 @@
 package com.alibaba.nacos.api.ai.model.mcp;
 
 import com.alibaba.nacos.api.ai.constant.AiConstants;
+import com.alibaba.nacos.api.ai.model.mcp.registry.Package;
 import com.alibaba.nacos.api.ai.model.mcp.registry.Repository;
 import com.alibaba.nacos.api.ai.model.mcp.registry.ServerVersionDetail;
 
@@ -46,7 +47,14 @@ public class McpServerBasicInfo {
     
     private Repository repository;
     
+    private List<Package> packages;
+    
     private ServerVersionDetail versionDetail;
+    
+    /**
+     * Please use {@link #versionDetail} replaced.
+     */
+    private String version;
     
     /**
      * Should be set when `type` is not {@link AiConstants.Mcp#MCP_PROTOCOL_STDIO}.
@@ -59,6 +67,13 @@ public class McpServerBasicInfo {
     private Map<String, Object> localServerConfig;
     
     private boolean enabled = true;
+    
+    /**
+     * Current lifecycle status of MCP server, should be one of
+     * {@link AiConstants.Mcp#MCP_STATUS_ACTIVE} or {@link AiConstants.Mcp#MCP_STATUS_DEPRECATED}.
+     * Default is {@link AiConstants.Mcp#MCP_STATUS_ACTIVE}.
+     */
+    private String status = AiConstants.Mcp.MCP_STATUS_ACTIVE;
     
     /**
      * Auto discovery capabilities by Nacos. No need to set when create or update Mcp server.
@@ -151,5 +166,29 @@ public class McpServerBasicInfo {
 
     public void setRepository(Repository repository) {
         this.repository = repository;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public List<Package> getPackages() {
+        return packages;
+    }
+
+    public void setPackages(List<Package> packages) {
+        this.packages = packages;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

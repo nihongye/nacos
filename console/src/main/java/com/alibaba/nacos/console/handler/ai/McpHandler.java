@@ -19,6 +19,9 @@ package com.alibaba.nacos.console.handler.ai;
 import com.alibaba.nacos.api.ai.model.mcp.McpEndpointSpec;
 import com.alibaba.nacos.api.ai.model.mcp.McpServerBasicInfo;
 import com.alibaba.nacos.api.ai.model.mcp.McpServerDetailInfo;
+import com.alibaba.nacos.api.ai.model.mcp.McpServerImportRequest;
+import com.alibaba.nacos.api.ai.model.mcp.McpServerImportResponse;
+import com.alibaba.nacos.api.ai.model.mcp.McpServerImportValidationResult;
 import com.alibaba.nacos.api.ai.model.mcp.McpTool;
 import com.alibaba.nacos.api.ai.model.mcp.McpToolSpecification;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -65,9 +68,10 @@ public interface McpHandler {
      * @param serverSpecification   mcp server specification, see {@link McpServerBasicInfo}
      * @param toolSpecification     mcp server included tools, see {@link McpTool}, optional
      * @param endpointSpecification mcp server endpoint specification, see {@link McpEndpointSpec}, optional
+     * @return mcp server id of the new mcp server
      * @throws NacosException any exception during handling
      */
-    void createMcpServer(String namespaceId, McpServerBasicInfo serverSpecification,
+    String createMcpServer(String namespaceId, McpServerBasicInfo serverSpecification,
             McpToolSpecification toolSpecification, McpEndpointSpec endpointSpecification) throws NacosException;
     
     /**
@@ -97,4 +101,24 @@ public interface McpHandler {
      * @throws NacosException any exception during handling
      */
     void deleteMcpServer(String namespaceId, String mcpName, String mcpId, String version) throws NacosException;
+    
+    /**
+     * Validate MCP server import request.
+     *
+     * @param namespaceId namespace id for mcp servers
+     * @param request     import request containing data and settings
+     * @return validation result with details about potential issues
+     * @throws NacosException any exception during validation
+     */
+    McpServerImportValidationResult validateImport(String namespaceId, McpServerImportRequest request) throws NacosException;
+    
+    /**
+     * Execute MCP server import operation.
+     *
+     * @param namespaceId namespace id for mcp servers
+     * @param request     import request containing data and settings
+     * @return import response with results and statistics
+     * @throws NacosException any exception during import execution
+     */
+    McpServerImportResponse executeImport(String namespaceId, McpServerImportRequest request) throws NacosException;
 }

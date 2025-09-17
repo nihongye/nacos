@@ -34,6 +34,7 @@ import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.maintainer.client.constants.Constants;
 import com.alibaba.nacos.maintainer.client.core.AbstractCoreMaintainerService;
 import com.alibaba.nacos.maintainer.client.model.HttpRequest;
+import com.alibaba.nacos.plugin.auth.api.RequestResource;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.Collections;
@@ -59,7 +60,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("dataId", dataId);
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH).setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigDetailInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -72,6 +74,25 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
     public boolean publishConfig(String dataId, String groupName, String namespaceId, String content, String appName,
             String srcUser, String configTags, String desc, String type) throws NacosException {
         return doPublishConfig(dataId, groupName, namespaceId, content, appName, srcUser, configTags, desc, type, null);
+    }
+    
+    @Override
+    public boolean updateConfigMetadata(String dataId, String groupName, String namespaceId, String description,
+            String configTags) throws NacosException {
+        Map<String, String> params = new HashMap<>(8);
+        params.put("dataId", dataId);
+        params.put("groupName", groupName);
+        params.put("namespaceId", namespaceId);
+        params.put("desc", description);
+        params.put("configTags", configTags);
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest.Builder builder = buildRequestWithResource(resource).setHttpMethod(HttpMethod.PUT)
+                .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/metadata").setParamValue(params);
+        HttpRequest httpRequest = builder.build();
+        HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
+        Result<Boolean> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<Boolean>>() {
+        });
+        return result.getData();
     }
     
     @Override
@@ -98,7 +119,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("configTags", configTags);
         params.put("desc", desc);
         params.put("type", type);
-        HttpRequest.Builder builder = new HttpRequest.Builder().setHttpMethod(HttpMethod.POST)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest.Builder builder = buildRequestWithResource(resource).setHttpMethod(HttpMethod.POST)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH).setParamValue(params);
         if (StringUtils.isNotBlank(betaIps)) {
             Map<String, String> headers = Collections.singletonMap("betaIps", betaIps);
@@ -117,7 +139,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("dataId", dataId);
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.DELETE)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.DELETE)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH).setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<Boolean> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<Boolean>>() {
@@ -136,8 +159,7 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
             idStr.append(id);
         }
         params.put("ids", idStr.toString());
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.DELETE)
+        HttpRequest httpRequest = buildRequestWithResource().setHttpMethod(HttpMethod.DELETE)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/batch").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<Boolean> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<Boolean>>() {
@@ -160,8 +182,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("appName", appName);
         params.put("pageNo", String.valueOf(pageNo));
         params.put("pageSize", String.valueOf(pageSize));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/list").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<Page<ConfigBasicInfo>> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -178,8 +200,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
         params.put("aggregation", String.valueOf(aggregation));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/listener").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigListenerInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -194,8 +216,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("dataId", dataId);
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.DELETE)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.DELETE)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/beta").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<Boolean> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<Boolean>>() {
@@ -209,8 +231,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("dataId", dataId);
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/beta").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigGrayInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -226,8 +248,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("namespaceId", namespaceId);
         params.put("srcUser", srcUser);
         params.put("policy", policy.toString());
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.POST)
+        RequestResource resource = buildRequestResource(namespaceId, StringUtils.EMPTY, StringUtils.EMPTY);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.POST)
                 .setPath(Constants.AdminApiPath.CONFIG_ADMIN_PATH + "/clone").setParamValue(params)
                 .setBody(JacksonUtils.toJson(cloneInfos)).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
@@ -246,8 +268,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("namespaceId", namespaceId);
         params.put("pageNo", String.valueOf(pageNo));
         params.put("pageSize", String.valueOf(pageSize));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_HISTORY_ADMIN_PATH + "/list").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<Page<ConfigHistoryBasicInfo>> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -264,8 +286,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
         params.put("nid", String.valueOf(nid));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_HISTORY_ADMIN_PATH).setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigHistoryDetailInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -282,8 +304,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("groupName", groupName);
         params.put("namespaceId", namespaceId);
         params.put("id", String.valueOf(id));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, groupName, dataId);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_HISTORY_ADMIN_PATH + "/previous").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigHistoryDetailInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -296,8 +318,8 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
     public List<ConfigBasicInfo> getConfigListByNamespace(String namespaceId) throws NacosException {
         Map<String, String> params = new HashMap<>(8);
         params.put("namespaceId", namespaceId);
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, StringUtils.EMPTY, StringUtils.EMPTY);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_HISTORY_ADMIN_PATH + "/configs").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<List<ConfigBasicInfo>> result = JacksonUtils.toObj(httpRestResult.getData(),
@@ -308,7 +330,7 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
     
     @Override
     public String updateLocalCacheFromStore() throws NacosException {
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.POST)
+        HttpRequest httpRequest = buildRequestWithResource().setHttpMethod(HttpMethod.POST)
                 .setPath(Constants.AdminApiPath.CONFIG_OPS_ADMIN_PATH + "/localCache").build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<String> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<String>>() {
@@ -322,7 +344,7 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("logName", logName);
         params.put("logLevel", logLevel);
         
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.PUT)
+        HttpRequest httpRequest = buildRequestWithResource().setHttpMethod(HttpMethod.PUT)
                 .setPath(Constants.AdminApiPath.CONFIG_OPS_ADMIN_PATH + "/log").setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<String> result = JacksonUtils.toObj(httpRestResult.getData(), new TypeReference<Result<String>>() {
@@ -338,13 +360,30 @@ public class NacosConfigMaintainerServiceImpl extends AbstractCoreMaintainerServ
         params.put("all", String.valueOf(all));
         params.put("namespaceId", namespaceId);
         params.put("aggregation", String.valueOf(aggregation));
-        
-        HttpRequest httpRequest = new HttpRequest.Builder().setHttpMethod(HttpMethod.GET)
+        RequestResource resource = buildRequestResource(namespaceId, StringUtils.EMPTY, StringUtils.EMPTY);
+        HttpRequest httpRequest = buildRequestWithResource(resource).setHttpMethod(HttpMethod.GET)
                 .setPath(Constants.AdminApiPath.CONFIG_LISTENER_ADMIN_PATH).setParamValue(params).build();
         HttpRestResult<String> httpRestResult = getClientHttpProxy().executeSyncHttpRequest(httpRequest);
         Result<ConfigListenerInfo> result = JacksonUtils.toObj(httpRestResult.getData(),
                 new TypeReference<Result<ConfigListenerInfo>>() {
                 });
         return result.getData();
+    }
+    
+    private HttpRequest.Builder buildRequestWithResource() {
+        return new HttpRequest.Builder().setResource(
+                RequestResource.configBuilder().setGroup(StringUtils.EMPTY).build());
+    }
+    
+    private HttpRequest.Builder buildRequestWithResource(RequestResource resource) {
+        return new HttpRequest.Builder().setResource(resource);
+    }
+    
+    private RequestResource buildRequestResource(String namespaceId, String groupName, String dataId) {
+        RequestResource.Builder builder = RequestResource.configBuilder();
+        builder.setNamespace(namespaceId);
+        builder.setGroup(groupName);
+        builder.setResource(dataId);
+        return builder.build();
     }
 }

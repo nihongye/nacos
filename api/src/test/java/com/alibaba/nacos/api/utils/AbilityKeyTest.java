@@ -47,19 +47,27 @@ class AbilityKeyTest {
         enumMap.put(AbilityKey.SERVER_FUZZY_WATCH, true);
         enumMap.put(AbilityKey.SERVER_DISTRIBUTED_LOCK, false);
         enumMap.put(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC, false);
+        enumMap.put(AbilityKey.SERVER_MCP_REGISTRY, false);
+        enumMap.put(AbilityKey.SERVER_AGENT_REGISTRY, false);
         stringBooleanMap = AbilityKey.mapStr(enumMap);
-        assertEquals(3, stringBooleanMap.size());
+        assertEquals(5, stringBooleanMap.size());
         assertTrue(stringBooleanMap.get(AbilityKey.SERVER_FUZZY_WATCH.getName()));
         assertFalse(stringBooleanMap.get(AbilityKey.SERVER_DISTRIBUTED_LOCK.getName()));
         assertFalse(stringBooleanMap.get(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC.getName()));
+        assertFalse(stringBooleanMap.get(AbilityKey.SERVER_MCP_REGISTRY.getName()));
+        assertFalse(stringBooleanMap.get(AbilityKey.SERVER_AGENT_REGISTRY.getName()));
         
         enumMap.put(AbilityKey.SERVER_DISTRIBUTED_LOCK, true);
         enumMap.put(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC, true);
+        enumMap.put(AbilityKey.SERVER_MCP_REGISTRY, true);
+        enumMap.put(AbilityKey.SERVER_AGENT_REGISTRY, true);
         stringBooleanMap = AbilityKey.mapStr(enumMap);
-        assertEquals(3, stringBooleanMap.size());
+        assertEquals(5, stringBooleanMap.size());
         assertTrue(stringBooleanMap.get(AbilityKey.SERVER_FUZZY_WATCH.getName()));
         assertTrue(stringBooleanMap.get(AbilityKey.SERVER_DISTRIBUTED_LOCK.getName()));
         assertTrue(stringBooleanMap.get(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC.getName()));
+        assertTrue(stringBooleanMap.get(AbilityKey.SERVER_MCP_REGISTRY.getName()));
+        assertTrue(stringBooleanMap.get(AbilityKey.SERVER_AGENT_REGISTRY.getName()));
     }
     
     @Test
@@ -78,28 +86,32 @@ class AbilityKeyTest {
         mapStr.put(AbilityKey.SERVER_DISTRIBUTED_LOCK.getName(), false);
         mapStr.put(AbilityKey.SERVER_FUZZY_WATCH.getName(), true);
         mapStr.put(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC.getName(), true);
+        mapStr.put(AbilityKey.SERVER_MCP_REGISTRY.getName(), true);
         enumMap = AbilityKey.mapEnum(AbilityMode.SERVER, mapStr);
         assertFalse(enumMap.get(AbilityKey.SERVER_DISTRIBUTED_LOCK));
         assertTrue(enumMap.get(AbilityKey.SERVER_FUZZY_WATCH));
         assertTrue(enumMap.get(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC));
+        assertTrue(enumMap.get(AbilityKey.SERVER_MCP_REGISTRY));
         
         mapStr.clear();
         mapStr.put(AbilityKey.SERVER_DISTRIBUTED_LOCK.getName(), true);
         mapStr.put(AbilityKey.SERVER_FUZZY_WATCH.getName(), true);
         mapStr.put(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC.getName(), true);
+        mapStr.put(AbilityKey.SERVER_MCP_REGISTRY.getName(), true);
         enumMap = AbilityKey.mapEnum(AbilityMode.SERVER, mapStr);
         assertTrue(enumMap.get(AbilityKey.SERVER_DISTRIBUTED_LOCK));
         assertTrue(enumMap.get(AbilityKey.SERVER_FUZZY_WATCH));
         assertTrue(enumMap.get(AbilityKey.SERVER_PERSISTENT_INSTANCE_BY_GRPC));
+        assertTrue(enumMap.get(AbilityKey.SERVER_MCP_REGISTRY));
         
     }
     
     @Test
     void testGetAllValues() {
         Collection<AbilityKey> actual = AbilityKey.getAllValues(AbilityMode.SERVER);
-        assertEquals(3, actual.size());
+        assertEquals(5, actual.size());
         actual = AbilityKey.getAllValues(AbilityMode.SDK_CLIENT);
-        assertEquals(2, actual.size());
+        assertEquals(4, actual.size());
         actual = AbilityKey.getAllValues(AbilityMode.CLUSTER_CLIENT);
         assertEquals(1, actual.size());
     }
@@ -107,9 +119,9 @@ class AbilityKeyTest {
     @Test
     void testGetAllNames() {
         Collection<String> actual = AbilityKey.getAllNames(AbilityMode.SERVER);
-        assertEquals(3, actual.size());
+        assertEquals(5, actual.size());
         actual = AbilityKey.getAllNames(AbilityMode.SDK_CLIENT);
-        assertEquals(2, actual.size());
+        assertEquals(4, actual.size());
         actual = AbilityKey.getAllNames(AbilityMode.CLUSTER_CLIENT);
         assertEquals(1, actual.size());
     }
